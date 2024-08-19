@@ -10,10 +10,35 @@ noble.on('stateChange', state => {
     }
 });
 
-noble.on('discover', peripheral => {
+noble.on('discover', async peripheral => {
     console.log(`Discovered device: ${peripheral.advertisement.localName || 'Unnamed device'}`);
-    console.log(`  UUID: ${peripheral.uuid}`);
+    console.log(`  Peripheral UUID: ${peripheral.uuid}`);
     console.log(`  RSSI: ${peripheral.rssi}`);
-    console.log(`  Services: ${peripheral.advertisement.serviceUuids}`);
+    
+    try {
+        // Connect to the peripheral
+        await peripheral.connectAsync();
+        console.log(`Connected to ${peripheral.advertisement.localName || 'Unnamed device'}`);
+
+        // Discover services
+        const services = await peripheral.discoverServicesAsync();
+        for (const service of services) {
+            console.log(`  Service UUID: ${service.uuid}`);
+            
+            // Discover characteristics for each service
+            const characteristics = await service.discoverCharacteristicsAsync();
+            for (const characteristic of characteristics) {
+                console.log(`    Characteristic UUID: ${characteristic.uuid}`);
+            }
+        }
+        
+        // Disconnect from the peripheral
+        await peripheral.disconnectAsync();
+        console.log(`Disconnected from ${peripheral.advertisement.localName || 'Unnamed device'}`);
+        
+    } catch (error) {
+        console.error(`Error connecting or discovering services: ${error.message}`);
+    }
+
     console.log('---------------------------------------------------');
 });
