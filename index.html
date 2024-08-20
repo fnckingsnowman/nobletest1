@@ -3,13 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLE Scanner</title>
+    <title>Electron App</title>
 </head>
 <body>
-    <h1>BLE Scanner</h1>
-    <button id="startScanBtn">Start Scan</button>
-    <button id="stopScanBtn">Stop Scan</button>
+    <!-- Native addon controls -->
+    <button id="startHookBtn">Start Hook</button>
+    <button id="stopHookBtn">Stop Hook</button>
+    <input id="f11KeyInput" type="text" placeholder="F11 Key">
+    <button id="setF11KeyBtn">Set F11 Key</button>
+    <input id="f12KeyInput" type="text" placeholder="F12 Key">
+    <button id="setF12KeyBtn">Set F12 Key</button>
+
+    <!-- BLE scanning controls -->
+    <button id="startScanBtn">Start BLE Scan</button>
+    <button id="stopScanBtn">Stop BLE Scan</button>
+
+    <!-- BLE results display -->
     <div id="results"></div>
+
+    <!-- Your renderer script -->
     <script src="renderer.js"></script>
 </body>
 </html>
