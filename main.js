@@ -1,99 +1,107 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
 const noble = require('@abandonware/noble');
 
-let mainWindow;
+let scanning = false;
 
-app.on('ready', () => {
-  mainWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false, // Ensure this is false to allow ipcRenderer
-    },
-  });
-
-  mainWindow.loadFile('index.html');
-
-  ipcMain.on('start-ble-scan', (event) => {
-    noble.on('stateChange', state => {
-      if (state === 'poweredOn') {
-        noble.startScanning();
-      } else {
-        noble.stopScanning();
-      }
+function createWindow () {
+    const win = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            enableRemoteModule: false,
+            nodeIntegration: true
+        }
     });
 
-    noble.on('discover', peripheral => {
-      console.log(`Discovered device: ${peripheral.advertisement.localName}`);
+    win.loadFile('index.html');
+}
 
-      // Connect to the device
-      peripheral.connect(error => {
-        if (error) {
-          console.error('Error connecting:', error);
-          return;
+app.whenReady().then(() => {
+    createWindow();
+
+    ipcMain.handle('start-scan', () => {
+        if (!scanning) {
+            scanning = true;
+            noble.startScanning();
+            console.log('Started scanning for BLE devices.');
+        }
+    });
+
+    ipcMain.handle('stop-scan', () => {
+        if (scanning) {
+            noble.stopScanning();
+            scanning = false;
+            console.log('Stopped scanning for BLE devices.');
+        }
+    });
+
+    const discoveredDevices = new Map();
+
+    noble.on('stateChange', state => {
+        if (state === 'poweredOn') {
+            if (scanning) {
+                noble.startScanning();
+            }
+        } else {
+            noble.stopScanning();
+        }
+    });
+
+    noble.on('discover', async peripheral => {
+        let deviceInfo = {
+            name: peripheral.advertisement.localName || 'Unnamed device',
+            uuid: peripheral.uuid,
+            rssi: peripheral.rssi,
+            services: []
+        };
+
+        // Check if device is already in the list
+        if (discoveredDevices.has(peripheral.uuid)) {
+            return; // Device already processed
         }
 
-        console.log('Connected to', peripheral.advertisement.localName);
+        discoveredDevices.set(peripheral.uuid, deviceInfo);
 
-        // Discover services and characteristics
-        peripheral.discoverAllServicesAndCharacteristics((error, services, characteristics) => {
-          if (error) {
-            console.error('Error discovering services and characteristics:', error);
-            return;
-          }
+        try {
+            await peripheral.connectAsync();
+            const services = await peripheral.discoverServicesAsync();
+            for (const service of services) {
+                let serviceInfo = {
+                    uuid: service.uuid,
+                    characteristics: []
+                };
 
-          // Example: Fetch and output a specific characteristic's value
-          characteristics.forEach(characteristic => {
-            if (characteristic.properties.includes('read')) {
-              characteristic.read((error, data) => {
-                if (error) {
-                  console.error('Error reading characteristic:', error);
-                  return;
+                const characteristics = await service.discoverCharacteristicsAsync();
+                for (const characteristic of characteristics) {
+                    serviceInfo.characteristics.push(characteristic.uuid);
                 }
 
-                const id = data.toString('utf-8'); // Adjust the conversion based on your data
-                console.log('Received ID:', id);
-
-                // Send the ID to the frontend
-                mainWindow.webContents.send('ble-device-id', id);
-              });
+                deviceInfo.services.push(serviceInfo);
             }
 
-            if (characteristic.properties.includes('notify')) {
-              characteristic.subscribe(error => {
-                if (error) {
-                  console.error('Error subscribing to notifications:', error);
-                  return;
-                }
+            await peripheral.disconnectAsync();
+        } catch (error) {
+            deviceInfo.error = error.message;
+        }
 
-                characteristic.on('data', (data, isNotification) => {
-                  const id = data.toString('utf-8'); // Adjust the conversion based on your data
-                  console.log('Received ID via notification:', id);
-
-                  // Send the ID to the frontend
-                  mainWindow.webContents.send('ble-device-id', id);
-                });
-              });
-            }
-          });
+        // Notify renderer process about new device
+        BrowserWindow.getAllWindows().forEach(win => {
+            win.webContents.send('device-discovered', deviceInfo);
         });
-      });
-
-      peripheral.on('disconnect', () => {
-        console.log('Disconnected from', peripheral.advertisement.localName);
-        noble.startScanning(); // Start scanning again if disconnected
-      });
     });
-  });
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+    }
 });
