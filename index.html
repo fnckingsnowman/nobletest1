@@ -3,25 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electron App</title>
+    <title>Revolute Configuration App</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Native addon controls -->
-    <button id="startHookBtn">Start Hook</button>
-    <button id="stopHookBtn">Stop Hook</button>
-    <input id="f11KeyInput" type="text" placeholder="F11 Key">
-    <button id="setF11KeyBtn">Set F11 Key</button>
-    <input id="f12KeyInput" type="text" placeholder="F12 Key">
-    <button id="setF12KeyBtn">Set F12 Key</button>
 
-    <!-- BLE scanning controls -->
-    <button id="startScanBtn">Start BLE Scan</button>
-    <button id="stopScanBtn">Stop BLE Scan</button>
 
-    <!-- BLE results display -->
-    <div id="results"></div>
+    <div class="container">
+        <div class="sidebar">
+            <h1 class="title">Connect your Revolute</h1>
+            <button onclick="showBLEDevices()">BLE connect</button>
+            <div class="search-bar">
+                <input type="text" placeholder="Search bar">
+            </div>
+            <div class="tabs" id="tabs">
+                <div class="tab" id="tabButton1">
+                    <button onclick="showTab('tab1')">Tab 1</button>
+                    <button class="delete-tab" onclick="deleteTab('tab1', 'tabButton1')">&times;</button>
+                </div>
+            </div>
+            <button class="new-tab" onclick="addNewTab()">+ new tab</button>
+        </div>
+        <div class="content" id="content">
+            <div id="tab1" class="tab-content active">
+                <button id="startHookBtn">Start Hook</button>
+                <button id="stopHookBtn">Stop Hook</button>
+                <input id="f11KeyInput" type="text" placeholder="F11 Key">
+                <button id="setF11KeyBtn">Set F11 Key</button>
+                <input id="f12KeyInput" type="text" placeholder="F12 Key">
+                <button id="setF12KeyBtn">Set F12 Key</button>
+            </div>
+
+            <!-- BLE Devices Tab -->
+            <div id="bleDevices" class="tab-content">
+                <div class="header">Available BLE Devices</div>
+                <button id="startScanBtn">Start BLE Scan</button>
+                <button id="stopScanBtn">Stop BLE Scan</button>
+                <div id="results"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- Your renderer script -->
     <script src="renderer.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
