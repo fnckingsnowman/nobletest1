@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const noble = require('@abandonware/noble');
+const nativeAddon = require('./native-addon/build/Release/addon');
 
 let scanning = false;
 
@@ -92,6 +93,37 @@ app.whenReady().then(() => {
             win.webContents.send('device-discovered', deviceInfo);
         });
     });
+});
+
+ipcMain.on('start-hook', () => {
+  nativeAddon.startHook();
+});
+
+ipcMain.on('stop-hook', () => {
+  nativeAddon.stopHook();
+});
+
+ipcMain.on('set-f11-key', (event, key) => {
+  nativeAddon.setF11Key(key);
+});
+
+ipcMain.on('set-f12-key', (event, key) => {
+  nativeAddon.setF12Key(key);
+});
+
+
+// IPC handlers for native-addon
+ipcMain.on('start-hook', () => {
+  nativeAddon.startHook();
+});
+ipcMain.on('stop-hook', () => {
+  nativeAddon.stopHook();
+});
+ipcMain.on('set-f11-key', (event, key) => {
+  nativeAddon.setF11Key(key);
+});
+ipcMain.on('set-f12-key', (event, key) => {
+  nativeAddon.setF12Key(key);
 });
 
 app.on('window-all-closed', () => {

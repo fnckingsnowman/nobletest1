@@ -1,0 +1,184 @@
+/* styles.css */
+
+:root{
+    --hoverColor: #a6acf5;
+    --contentBackgroundColor:#cbcdbc;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    border-right: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background-color: #1c1d2c;
+}
+
+.user-account,
+.search-bar,
+.tabs,
+.new-tab {
+    margin-bottom: 10px;
+}
+
+.user-account,
+.search-bar input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #7479bd;
+    box-sizing: border-box;
+}
+
+.tabs {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.tab button {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #7479bd;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #7479bd;
+}
+
+.tab button:hover {
+    background-color: var(--hoverColor);
+}
+
+.delete-tab {
+    background-color: red;
+    color: #7479bd;
+    border: none;
+    cursor: pointer;
+    padding: 0 10px;
+    margin-left: 5px;
+}
+
+.delete-tab:hover {
+    background-color: darkred;
+}
+
+.new-tab {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #7479bd;
+}
+
+.new-tab:hover {
+    background-color: var(--hoverColor);
+}
+
+.content {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--contentBackgroundColor);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.header {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.text-box {
+    width: 100px;
+    height: 30px;
+    border: 1px solid #000;
+    margin-bottom: 10px;
+}
+
+
+.tab button.active {
+    background-color: #d23636;
+}
+
+.title {
+    font-size: 35px;
+    margin-bottom: 30px;
+    color: #cbcdbc;
+}
+.BLE-connectButton{
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #7479bd;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #7479bd;
+}
+.BLE-connectButton:hover{
+    background-color: var(--hoverColor);
+}
+
+/*
+
+//loading screen thing ignore
+.loader{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f1f1;
+    transition: opacity 0.75s, visibility 0.75s;
+}
+
+.loader-hidden{
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader::after{
+    content: "";
+    width: 75px;
+    height: 75px;
+    border: 15px solid #dcdcdc;
+    border-top-color:aqua;
+    border-radius: 50%;
+    animation: loading 0.75s ease infinite;
+}
+
+@keyframes loading{
+    from{
+        transform: rotate(0turn);
+    }
+    to{
+        transform: rotate(1turn);
+    }
+}
+
+*/
